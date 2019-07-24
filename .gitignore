@@ -1,0 +1,10 @@
+*.pyc
+*.pyo
+*.o
+*.so
+*.a
+**build
+.vscode
+*.cxx
+RangeNet.py
+*.txt
