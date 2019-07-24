@@ -4,8 +4,8 @@ This repository contains helper scripts to open, visualize, process, and
 evaluate results for point clouds and labels from the SemanticKITTI dataset.
 
 - Link to original [KITTI Odometry Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) Dataset
-- **[TODO]** Link to [SemanticKITTI](http://www.ipb.uni-bonn.de/data/) dataset.
-- **[TODO]** Link to SemanticKITTI benchmark [competition](https://competitions.codalab.org/competitions/XXXX).
+- Link to [SemanticKITTI dataset](http://semantic-kitti.org/).
+- Link to SemanticKITTI benchmark [competition](http://semantic-kitti.org/tasks.html).
 
 ---
 ##### Example of 3D pointcloud from sequence 13:
@@ -280,14 +280,11 @@ by the API scripts.
 If you use this dataset and/or this API in your work, please cite its [paper](https://arxiv.org/abs/1904.01416)
 
 ```
-@article{behley2019arxiv,
+@inproceedings{behley2019iccv,
     author = {J. Behley and M. Garbade and A. Milioto and J. Quenzel and S. Behnke and C. Stachniss and J. Gall},
-     title = {{A Dataset for Semantic Segmentation of Point Cloud Sequences}},
-      year = {2019},
-   journal = {CoRR},
-    volume = {abs/1904.01416},
-      year = {2019},
-       url = {http://arxiv.org/abs/1904.01416}
+     title = {{SemanticKITTI: A Dataset for Semantic Scene Understanding of LiDAR Sequences}},
+ booktitle = {Proc. of the IEEE/CVF International Conf.~on Computer Vision (ICCV)},
+      year = {2019}
 }
 ```
 
