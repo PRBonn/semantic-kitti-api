@@ -102,7 +102,7 @@ if __name__ == '__main__':
   # open data config file
   try:
     print("Opening data config file %s" % FLAGS.datacfg)
-    DATA = yaml.load(open(FLAGS.datacfg, 'r'))
+    DATA = yaml.safe_load(open(FLAGS.datacfg, 'r'))
   except Exception as e:
     print(e)
     print("Error opening data yaml file.")
