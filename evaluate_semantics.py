@@ -96,14 +96,8 @@ if __name__ == '__main__':
   # assert backend
   assert(FLAGS.backend in backends)
 
-  # open data config file
-  try:
-    print("Opening data config file %s" % FLAGS.datacfg)
-    DATA = yaml.safe_load(open(FLAGS.datacfg, 'r'))
-  except Exception as e:
-    print(e)
-    print("Error opening data yaml file.")
-    quit()
+  print("Opening data config file %s" % FLAGS.datacfg)
+  DATA = yaml.safe_load(open(FLAGS.datacfg, 'r'))
 
   # get number of interest classes, and the label mappings
   class_strings = DATA["labels"]
@@ -113,17 +107,11 @@ if __name__ == '__main__':
   nr_classes = len(class_inv_remap)
 
   # make lookup table for mapping
-  maxkey = 0
-  for key, data in class_remap.items():
-    if key > maxkey:
-      maxkey = key
+  maxkey = max(class_remap.keys())
+  
   # +100 hack making lut bigger just in case there are unknown labels
   remap_lut = np.zeros((maxkey + 100), dtype=np.int32)
-  for key, data in class_remap.items():
-    try:
-      remap_lut[key] = data
-    except IndexError:
-      print("Wrong key ", key)
+  remap_lut[list(class_remap.keys())] = list(class_remap.values())
   # print(remap_lut)
 
   # create evaluator

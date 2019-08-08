@@ -79,14 +79,8 @@ if __name__ == '__main__':
   # assert split
   assert(FLAGS.split in splits)
 
-  # open data config file
-  try:
-    print("Opening data config file %s" % FLAGS.datacfg)
-    DATA = yaml.safe_load(open(FLAGS.datacfg, 'r'))
-  except Exception as e:
-    print(e)
-    print("Error opening data yaml file.")
-    quit()
+  print("Opening data config file %s" % FLAGS.datacfg)
+  DATA = yaml.safe_load(open(FLAGS.datacfg, 'r'))
 
   # get number of interest classes, and the label mappings
   if FLAGS.inverse:
@@ -97,17 +91,11 @@ if __name__ == '__main__':
   nr_classes = len(remapdict)
 
   # make lookup table for mapping
-  maxkey = 0
-  for key, data in remapdict.items():
-    if key > maxkey:
-      maxkey = key
+  maxkey = max(remapdict.keys())
+
   # +100 hack making lut bigger just in case there are unknown labels
   remap_lut = np.zeros((maxkey + 100), dtype=np.int32)
-  for key, data in remapdict.items():
-    try:
-      remap_lut[key] = data
-    except IndexError:
-      print("Wrong key ", key)
+  remap_lut[list(remapdict.keys())] = list(remapdict.values())
   # print(remap_lut)
 
   # get wanted set
