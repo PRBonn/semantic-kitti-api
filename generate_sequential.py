@@ -9,7 +9,7 @@ from collections import deque
 import shutil
 from numpy.linalg import inv
 import struct
-
+import time
 
 def parse_calibration(filename):
   """ read calibration file with given filename
@@ -69,6 +69,8 @@ def parse_poses(filename, calibration):
 
 
 if __name__ == '__main__':
+  start_time = time.time()
+
   parser = argparse.ArgumentParser("./generate_sequential.py")
   parser.add_argument(
       '--dataset',
@@ -151,47 +153,45 @@ if __name__ == '__main__':
       # read scan and labels, get pose
       scan_filename = os.path.join(input_folder, "velodyne", f)
       scan = np.fromfile(scan_filename, dtype=np.float32)
+
       scan = scan.reshape((-1, 4))
 
-      label_filename = os.path.join(input_folder, "labels",
-                                    os.path.splitext(f)[0] + ".label")
+      label_filename = os.path.join(input_folder, "labels", os.path.splitext(f)[0] + ".label")
       labels = np.fromfile(label_filename, dtype=np.uint32)
       labels = labels.reshape((-1))
 
       # convert points to homogenous coordinates (x, y, z, 1)
-      points = np.ones((scan.shape[0], 4))
+      points = np.ones((scan.shape))
       points[:, 0:3] = scan[:, 0:3]
       remissions = scan[:, 3]
 
       pose = poses[i]
 
-      # write output files
-      out_points = open(os.path.join(velodyne_folder, f), "wb")
-      out_labels = open(
-          os.path.join(labels_folder,
-                       os.path.splitext(f)[0] + ".label"), "wb")
+      # prepare single numpy array for all points that can be written at once.
+      num_concat_points = points.shape[0]
+      num_concat_points += sum([past["points"].shape[0] for past in history])
+      concated_points = np.zeros((num_concat_points * 4), dtype = np.float32)
+      concated_labels = np.zeros((num_concat_points), dtype = np.uint32)
 
-      arr = [struct.pack('<ffff', p[0], p[1], p[2], p[3]) for p in points]
-      for a in arr:
-        out_points.write(a)
-      arr = [struct.pack('<I', label) for label in labels]
-      for a in arr:
-        out_labels.write(a)
+      start = 0
+      concated_points[4 * start:4 * (start + points.shape[0])] = scan.reshape((-1))
+      concated_labels[start:start + points.shape[0]] = labels
+      start += points.shape[0]
 
       for past in history:
         diff = np.matmul(inv(pose), past["pose"])
         tpoints = np.matmul(diff, past["points"].T).T
         tpoints[:, 3] = past["remissions"]
+        tpoints = tpoints.reshape((-1))
 
-        arr = [
-            struct.pack('<ffff', tpoints[j, 0], tpoints[j, 1], tpoints[j, 2],
-                        tpoints[j, 3]) for j in range(tpoints.shape[0])
-        ]
-        for a in arr:
-          out_points.write(a)
-        arr = [struct.pack('<I', label) for label in past["labels"]]
-        for a in arr:
-          out_labels.write(a)
+        concated_points[4 * start:4 * (start + past["points"].shape[0])] = tpoints
+        concated_labels[start:start + past["labels"].shape[0]] = past["labels"]
+        start += past["points"].shape[0]
+
+
+      # write scan and labels in one pass.
+      concated_points.tofile(os.path.join(velodyne_folder, f))
+      concated_labels.tofile(os.path.join(labels_folder, os.path.splitext(f)[0] + ".label")) 
 
       # append current data to history queue.
       history.appendleft({
@@ -204,10 +204,10 @@ if __name__ == '__main__':
       if len(history) >= FLAGS.sequence_length:
         history.pop()
 
-      out_points.close()
-      out_labels.close()
-
       if 100.0 * i / len(scan_files) >= progress:
         print(".", end="", flush=True)
         progress = progress + 10
     print("finished.")
+
+
+  print("execution time: {}".format(time.time() - start_time))
