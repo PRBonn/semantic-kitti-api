@@ -211,6 +211,7 @@ The submission folder expects to get an zip file containing the following folder
   ```
   
   sequences
+    ├── description.txt (optional)
     ├── 11
     │   └── predictions
     │         ├ 000000.label
@@ -228,7 +229,16 @@ The submission folder expects to get an zip file containing the following folder
     └── 21
   ```
 
-In summary, you only have to provide the label files containing your predictions for every point of the scan and this is also checked by our validation script.
+In summary, you only have to provide the label files containing your predictions for every point of the scan and this is also checked by our validation script. If you want to have more information on our maintained leaderboard (coming soon!), you (currently) have to provide an additional `description.txt` file containing information, which we currently cannot access via the API.
+
+```
+method name: 
+method description: 
+project url: 
+publication url: 
+bibtex: 
+organization or affiliation: 
+```
 
 Run:
   ```sh
