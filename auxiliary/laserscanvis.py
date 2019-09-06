@@ -17,6 +17,7 @@ class LaserScanVis:
     self.scan_names = scan_names
     self.label_names = label_names
     self.offset = offset
+    self.total = len(self.scan_names)
     self.semantics = semantics
     self.instances = instances
     # sanity check
@@ -132,7 +133,7 @@ class LaserScanVis:
       self.scan.colorize()
 
     # then change names
-    title = "scan " + str(self.offset) + " of " + str(len(self.scan_names))
+    title = "scan " + str(self.offset)
     self.canvas.title = title
     self.img_canvas.title = title
 
@@ -196,9 +197,13 @@ class LaserScanVis:
     self.img_canvas.events.key_press.block()
     if event.key == 'N':
       self.offset += 1
+      if self.offset >= self.total:
+        self.offset = 0
       self.update_scan()
     elif event.key == 'B':
       self.offset -= 1
+      if self.offset < 0:
+        self.offset = self.total - 1
       self.update_scan()
     elif event.key == 'Q' or event.key == 'Escape':
       self.destroy()
