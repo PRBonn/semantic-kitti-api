@@ -56,9 +56,8 @@ class iouEval:
         tuple(idxs), ones, accumulate=True)
 
   def getStats(self):
-    # remove fp and fn from confusion on the ignore classes cols and rows
+    # remove fp from confusion on the ignore classes cols
     conf = self.conf_matrix.clone().double()
-    conf[self.ignore] = 0
     conf[:, self.ignore] = 0
 
     # get the clean stats

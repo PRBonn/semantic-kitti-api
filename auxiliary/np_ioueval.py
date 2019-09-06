@@ -43,9 +43,8 @@ class iouEval:
     np.add.at(self.conf_matrix, idxs, 1)
 
   def getStats(self):
-    # remove fp and fn from confusion on the ignore classes cols and rows
+    # remove fp from confusion on the ignore classes cols
     conf = self.conf_matrix.copy()
-    conf[self.ignore] = 0
     conf[:, self.ignore] = 0
 
     # get the clean stats
