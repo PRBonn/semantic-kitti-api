@@ -4,11 +4,25 @@
 import zipfile
 import argparse
 import os
+import numpy as np
 
 
 class ValidationException(Exception):
   pass
 
+def unpack(compressed):
+  ''' given a bit encoded voxel grid, make a normal voxel grid out of it.  '''
+  uncompressed = np.zeros(compressed.shape[0] * 8, dtype=np.uint8)
+  uncompressed[::8] = compressed[:] >> 7 & 1
+  uncompressed[1::8] = compressed[:] >> 6 & 1
+  uncompressed[2::8] = compressed[:] >> 5 & 1
+  uncompressed[3::8] = compressed[:] >> 4 & 1
+  uncompressed[4::8] = compressed[:] >> 3 & 1
+  uncompressed[5::8] = compressed[:] >> 2 & 1
+  uncompressed[6::8] = compressed[:] >> 1 & 1
+  uncompressed[7::8] = compressed[:] & 1
+
+  return uncompressed
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
@@ -23,13 +37,13 @@ if __name__ == "__main__":
   parser.add_argument(
       'dataset',
       type=str,
-      help='directory containing the folder "sequences" containing folders "11", ..., "21" with the "velodyne" files.'
+      help='directory containing the folder "sequences" containing folders "11", ..., "21" with the input data ("velodyne" or "voxels") folder.'
   )
 
   parser.add_argument(
       "--task",
       type=str,
-      choices=["segmentation"],
+      choices=["segmentation", "completion"],
       default="segmentation",
       help='task for which the zip file should be validated.'
   )
@@ -38,9 +52,15 @@ if __name__ == "__main__":
 
   checkmark = "\u2713"
 
+  float_bytes = 4
+  uint32_bytes = 4
+  uint16_bytes = 2
+
   try:
 
     print('Validating zip archive "{}".\n'.format(FLAGS.zipfile))
+
+    print( " ============ {:^10} ============ ".format(FLAGS.task))
 
     print("  1. Checking filename.............. ", end="", flush=True)
     if not FLAGS.zipfile.endswith('.zip'):
@@ -49,6 +69,7 @@ if __name__ == "__main__":
 
     with zipfile.ZipFile(FLAGS.zipfile) as zipfile:
       if FLAGS.task == "segmentation":
+        
 
         print("  2. Checking directory structure... ", end="", flush=True)
 
@@ -72,26 +93,69 @@ if __name__ == "__main__":
 
         for sequence in range(11, 22):
           sequence_directory = 'sequences/{}'.format(sequence)
-          velodyne_directory = os.path.join(FLAGS.dataset, 'sequences/{}/velodyne/'.format(sequence))
+          voxel_directory = os.path.join(FLAGS.dataset, 'sequences/{}/voxels/'.format(sequence))
 
-          velodyne_files = sorted([os.path.join(velodyne_directory, file) for file in os.listdir(velodyne_directory)])
+          voxel_files = sorted([os.path.join(voxel_directory, file) for file in os.listdir(voxel_directory)])
           label_files = sorted([os.path.join(sequence_directory, "predictions", os.path.splitext(filename)[0] + ".label")
-                                for filename in os.listdir(velodyne_directory)])
+                                for filename in os.listdir(voxel_directory)])
 
-          for velodyne_file, label_file in zip(velodyne_files, label_files):
-            num_points = os.path.getsize(velodyne_file) / (4 * 4)
+          for voxel_file, label_file in zip(voxel_files, label_files):
+            num_points = os.path.getsize(voxel_file) / (4 * float_bytes)
 
             if label_file not in prediction_files:
               raise ValidationException('"' + label_file + '" is missing inside zip.')
 
-            num_labels = prediction_files[label_file].file_size / 4
+            num_labels = prediction_files[label_file].file_size / uint32_bytes
             if num_labels != num_points:
               raise ValidationException('label file "' + label_file +
                                         "' should have {} labels, but found {} labels!".format(int(num_points), int(num_labels)))
 
         print(checkmark)
+      elif FLAGS.task == "completion":
+        print("  2. Checking directory structure... ", end="", flush=True)
+
+        directories = [folder.filename for folder in zipfile.infolist() if folder.filename.endswith("/")]
+        if "sequences/" not in directories:
+          raise ValidationException('Directory "sequences" missing inside zip file.')
+
+        for sequence in range(11, 22):
+          sequence_directory = "sequences/{}/".format(sequence)
+          if sequence_directory not in directories:
+            raise ValidationException('Directory "{}" missing inside zip file.'.format(sequence_directory))
+          predictions_directory = sequence_directory + "predictions/"
+          if predictions_directory not in directories:
+            raise ValidationException('Directory "{}" missing inside zip file.'.format(predictions_directory))
+
+        print(checkmark)
+
+        print('  3. Checking file sizes', end='', flush=True)
+
+        prediction_files = {info.filename: info for info in zipfile.infolist() if not info.filename.endswith("/")}
+
+        for sequence in range(11, 22):
+
+          sequence_directory = 'sequences/{}'.format(sequence)
+          voxel_directory = os.path.join(FLAGS.dataset, 'sequences/{}/voxels/'.format(sequence))
+
+          voxel_files = sorted([os.path.join(voxel_directory, file) for file in os.listdir(voxel_directory) if file.endswith(".bin")])
+          label_files = sorted([os.path.join(sequence_directory, "predictions", os.path.splitext(filename)[0] + ".label")
+                                for filename in os.listdir(voxel_directory)])
+
+          for voxel_file, label_file in zip(voxel_files, label_files):
+            input_voxels = unpack(np.fromfile(voxel_file, dtype=np.uint8))
+            num_voxels = input_voxels.shape[0] # fixed volume (= 256 * 256 * 32)!
+
+            if label_file not in prediction_files:
+              raise ValidationException('"' + label_file + '" is missing inside zip.')
+
+            num_labels = prediction_files[label_file].file_size / uint16_bytes # expecting uint16 for labels.
+            if num_labels != num_voxels:
+              raise ValidationException('label file "' + label_file +
+                                        "' should have {} labels, but found {} labels!".format(int(num_voxels), int(num_labels)))
+          print(".", end="", flush=True)
+        print(". ", end="", flush=True)
+        print(checkmark)
       else:
-        # TODO scene completion.
         raise NotImplementedError("Unknown task.")
   except ValidationException as ex:
     print("\n\n  " + "\u001b[1;31m>>> Error: " + str(ex) + "\u001b[0m")

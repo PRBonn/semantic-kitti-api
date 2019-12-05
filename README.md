@@ -18,6 +18,11 @@ evaluate results for point clouds and labels from the SemanticKITTI dataset.
 
 ---
 
+##### Example of voxelized point clouds for semantic scene completion:
+<img src="https://user-images.githubusercontent.com/11506664/70214770-4d43ff80-173c-11ea-940d-3950d8f24eaf.png" width="1000">
+
+---
+
 ## Data organization
 
 The data is organized in the following format:
@@ -32,6 +37,15 @@ The data is organized in the following format:
                   │   ├── labels/
                   │   │     ├ 000000.label
                   │   │     └ 000001.label
+                  |   ├── voxels/
+                  |   |     ├ 000000.bin
+                  |   |     ├ 000000.label
+                  |   |     ├ 000000.occluded
+                  |   |     ├ 000000.invalid
+                  |   |     ├ 000001.bin
+                  |   |     ├ 000001.label
+                  |   |     ├ 000001.occluded
+                  |   |     ├ 000001.invalid
                   │   └── velodyne/
                   │         ├ 000000.bin
                   │         └ 000001.bin
@@ -55,6 +69,7 @@ See [laserscan.py](auxiliary/laserscan.py) to see how the labels are read.
   - `poses.txt` contain the manually looped-closed poses for each capture (in
 the camera frame) that were used in the annotation tools to aggregate all
 the point clouds.
+  - `voxels` contains all information needed for the task of semantic scene completion. Each `.bin` file contains for each voxel if that voxel is occupied by laser measurements in a packed binary format. This is the input to the semantic scene completion task and it corresponds to the voxelization of a single LiDAR scan. Each`.label` file contains for each voxel of the completed scene a label in binary format. The label is a 16-bit unsigned integer (aka uint16_t) for each voxel. `.invalid` and `.occluded` contain information about the occlusion of voxel. Invalid voxels are voxels that are occluded from each view position and occluded voxels are occluded in the first view point. See also [SSCDataset.py](auxiliary/SSCDataset.py) for more information on loading the data.
 
 The main configuration file for the data is in `config/semantic-kitti.yaml`. In this file you will find:
 
@@ -106,7 +121,10 @@ $ sudo pip3 install -r requirements.txt
 
 **ALL OF THE SCRIPTS CAN BE INVOKED WITH THE --help (-h) FLAG, FOR EXTRA INFORMATION AND OPTIONS.**
 
-#### Visualization
+#### Visualization 
+
+
+##### Point Clouds
 
 To visualize the data, use the `visualize.py` script. It will open an interactive
 opengl visualization of the pointclouds along with a spherical projection of
@@ -132,15 +150,40 @@ visualization of the labels with the visualization of your predictions:
 $ ./visualize.py --sequence 00 --dataset /path/to/kitti/dataset/ --predictions /path/to/your/predictions
 ```
 
+#### Voxel Grids for Semantic Scene Completion
+
+To visualize the data, use the `visualize_voxels.py` script. It will open an interactive
+opengl visualization of the voxel grids and options to visualize the provided voxelizations 
+of the LiDAR data.
+
+```sh
+$ ./visualize_voxels.py --sequence 00 --dataset /path/to/kitti/dataset/
+```
+
+where:
+- `sequence` is the sequence to be accessed.
+- `dataset` is the path to the kitti dataset where the `sequences` directory is.
+
+Navigation:
+- `n` is next scan,
+- `b` is previous scan,
+- `esc` or `q` exits.
+
+Note: Holding the forward/backward buttons triggers the playback mode.
+
 #### Evaluation
 
-To evaluate the predictions of a method, use the [evaluate_semantics.py](./evaluate_semantics.py) script.
+To evaluate the predictions of a method, use the [evaluate_semantics.py](./evaluate_semantics.py) to evaluate 
+semantic segmentation and [evaluate_completion.py](./evaluate_completion.py) to evaluate the semantic scene completion.
 **Important:** The labels and the predictions need to be in the original
 label format, which means that if a method learns the cross-entropy mapped
 classes, they need to be passed through the `learning_map_inv` dictionary
 to be sent to the original dataset format. This is to prevent changes in the
 dataset interest classes from affecting intermediate outputs of approaches, 
-since the original labels will stay the same. We provide the `remap_semantic_labels.py` script to make this shift before the training, and once again before the evaluation, selecting which are the interest classes in the configuration file. 
+since the original labels will stay the same. 
+For semantich segmentation, we provide the `remap_semantic_labels.py` script to make this 
+shift before the training, and once again before the evaluation, selecting which are the interest 
+classes in the configuration file. 
 The data needs to be either:
 
 - In a separate directory with this format:
@@ -164,6 +207,12 @@ The data needs to be either:
 
   ```sh
   $ ./evaluate_semantics.py --dataset /path/to/kitti/dataset/ --predictions /path/to/method_predictions --split train/valid/test # depending of desired split to evaluate
+  ```
+
+  or 
+
+    ```sh
+  $ ./evaluate_completion.py --dataset /path/to/kitti/dataset/ --predictions /path/to/method_predictions --split train/valid/test # depending of desired split to evaluate
   ```
 
 - In the same directory as the dataset
@@ -200,13 +249,13 @@ The data needs to be either:
 
 If instead, the IoU vs distance is wanted, the evaluation is performed in the
 same way, but with the [evaluate_semantics_by_distance.py](./evaluate_semantics_by_distance.py) script. This will
-analize the IoU for a set of 5 distance ranges: `{(0m:10m), [10m:20m), [20m:30m), [30m:40m), (40m:50m)}`. 
+analyze the IoU for a set of 5 distance ranges: `{(0m:10m), [10m:20m), [20m:30m), [30m:40m), (40m:50m)}`. 
 
 #### Validation
 
 To ensure that your zip file is valid, we provide a small validation script [validate_submission.py](./validate_submission.py) that checks for the correct folder structure and consistent number of labels for each scan.
 
-The submission folder expects to get an zip file containing the following folder structure (as the seperate case above)
+The submission folder expects to get an zip file containing the following folder structure (as the separate case above)
 
   ```
   
@@ -242,7 +291,7 @@ organization or affiliation:
 
 Run:
   ```sh
-  $ ./validate_submission.py /path/to/submission.zip /path/to/kitti/dataset
+  $ ./validate_submission.py --task {segmentation|completion} /path/to/submission.zip /path/to/kitti/dataset
   ```
 to check your `submission.zip`.
 
