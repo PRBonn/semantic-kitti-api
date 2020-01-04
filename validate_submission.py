@@ -93,14 +93,14 @@ if __name__ == "__main__":
 
         for sequence in range(11, 22):
           sequence_directory = 'sequences/{}'.format(sequence)
-          voxel_directory = os.path.join(FLAGS.dataset, 'sequences/{}/voxels/'.format(sequence))
+          velodyne_directory = os.path.join(FLAGS.dataset, 'sequences/{}/velodyne/'.format(sequence))
 
-          voxel_files = sorted([os.path.join(voxel_directory, file) for file in os.listdir(voxel_directory)])
+          velodyne_files = sorted([os.path.join(velodyne_directory, file) for file in os.listdir(velodyne_directory)])
           label_files = sorted([os.path.join(sequence_directory, "predictions", os.path.splitext(filename)[0] + ".label")
-                                for filename in os.listdir(voxel_directory)])
+                                for filename in os.listdir(velodyne_directory)])
 
-          for voxel_file, label_file in zip(voxel_files, label_files):
-            num_points = os.path.getsize(voxel_file) / (4 * float_bytes)
+          for velodyne_file, label_file in zip(velodyne_files, label_files):
+            num_points = os.path.getsize(velodyne_file) / (4 * float_bytes)
 
             if label_file not in prediction_files:
               raise ValidationException('"' + label_file + '" is missing inside zip.')
