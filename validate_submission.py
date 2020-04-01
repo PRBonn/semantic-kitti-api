@@ -43,7 +43,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "--task",
       type=str,
-      choices=["segmentation", "completion"],
+      choices=["segmentation", "completion", "panoptic"],
       default="segmentation",
       help='task for which the zip file should be validated.'
   )
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     print(checkmark)
 
     with zipfile.ZipFile(FLAGS.zipfile) as zipfile:
-      if FLAGS.task == "segmentation":
+      if FLAGS.task == "segmentation" or FLAGS.task == "panoptic":
         
 
         print("  2. Checking directory structure... ", end="", flush=True)

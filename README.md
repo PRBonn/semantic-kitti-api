@@ -174,14 +174,14 @@ Note: Holding the forward/backward buttons triggers the playback mode.
 #### Evaluation
 
 To evaluate the predictions of a method, use the [evaluate_semantics.py](./evaluate_semantics.py) to evaluate 
-semantic segmentation and [evaluate_completion.py](./evaluate_completion.py) to evaluate the semantic scene completion.
+semantic segmentation, [evaluate_completion.py](./evaluate_completion.py) to evaluate the semantic scene completion and [evaluate_panoptic.py](./evaluate_panoptic.py) to evaluate panoptic segmentation.
 **Important:** The labels and the predictions need to be in the original
 label format, which means that if a method learns the cross-entropy mapped
 classes, they need to be passed through the `learning_map_inv` dictionary
 to be sent to the original dataset format. This is to prevent changes in the
 dataset interest classes from affecting intermediate outputs of approaches, 
 since the original labels will stay the same. 
-For semantich segmentation, we provide the `remap_semantic_labels.py` script to make this 
+For semantic segmentation, we provide the `remap_semantic_labels.py` script to make this 
 shift before the training, and once again before the evaluation, selecting which are the interest 
 classes in the configuration file. 
 The data needs to be either:
@@ -215,6 +215,11 @@ The data needs to be either:
   $ ./evaluate_completion.py --dataset /path/to/kitti/dataset/ --predictions /path/to/method_predictions --split train/valid/test # depending of desired split to evaluate
   ```
 
+  or 
+
+    ```sh
+  $ ./evaluate_panoptic.py --dataset /path/to/kitti/dataset/ --predictions /path/to/method_predictions --split train/valid/test # depending of desired split to evaluate
+  ```
 - In the same directory as the dataset
 
   ```
@@ -291,7 +296,7 @@ organization or affiliation:
 
 Run:
   ```sh
-  $ ./validate_submission.py --task {segmentation|completion} /path/to/submission.zip /path/to/kitti/dataset
+  $ ./validate_submission.py --task {segmentation|completion|panoptic} /path/to/submission.zip /path/to/kitti/dataset
   ```
 to check your `submission.zip`.
 
@@ -305,7 +310,7 @@ set, in order to weigh the loss for training, handling imbalanced data.
 
 #### Generation
 
-- [generate_sequential.py](generate_sequential.py) generates a sequence of scans using the manually looped closed poses used in our labeling tool, and stores them as individual point clouds. If, for example, we want to generate a dataset cointaining, for each point cloud, the aggregation of itself with the previous 4 scans, then:
+- [generate_sequential.py](generate_sequential.py) generates a sequence of scans using the manually looped closed poses used in our labeling tool, and stores them as individual point clouds. If, for example, we want to generate a dataset containing, for each point cloud, the aggregation of itself with the previous 4 scans, then:
 
   ```sh
   $ ./generate_sequential.py --dataset /path/to/kitti/dataset/ --sequence_length 5 --output /path/to/put/new/dataset 
