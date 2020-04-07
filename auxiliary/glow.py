@@ -4,15 +4,12 @@ gl.ERROR_ON_COPY = True
 gl.WARN_ON_FORMAT_UNAVAILABLE = True
 import numpy as np
 import re
-
-
 """
  openGL Object Wrapper (GLOW) in python.
 
  Some convenience classes to simplify resource management
 
 """
-
 
 WARN_INVALID_UNIFORMS = False
 
@@ -100,12 +97,10 @@ class GlBuffer:
 
 
 class GlTextureRectangle:
-
-
   def __init__(self, width, height, internalFormat=gl.GL_RGBA, format=gl.GL_RGBA):
     self.id_ = gl.glGenTextures(1)
-    self.internalFormat_ = internalFormat # gl.GL_RGB_FLOAT, gl.GL_RGB_UNSIGNED, ...
-    self.format = format # GL_RG. GL_RG_INTEGER, ...
+    self.internalFormat_ = internalFormat  # gl.GL_RGB_FLOAT, gl.GL_RGB_UNSIGNED, ...
+    self.format = format  # GL_RG. GL_RG_INTEGER, ...
 
     self.width_ = width
     self.height_ = height
@@ -117,7 +112,6 @@ class GlTextureRectangle:
     gl.glTexParameteri(gl.GL_TEXTURE_RECTANGLE, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_BORDER)
     gl.glBindTexture(gl.GL_TEXTURE_RECTANGLE, 0)
 
-
   def bind(self, textureUnitId):
     gl.glActiveTexture(gl.GL_TEXTURE0 + int(textureUnitId))
     gl.glBindTexture(gl.GL_TEXTURE_RECTANGLE, self.id_)
@@ -125,7 +119,6 @@ class GlTextureRectangle:
   def release(self, textureUnitId):
     gl.glActiveTexture(gl.GL_TEXTURE0 + int(textureUnitId))
     gl.glBindTexture(gl.GL_TEXTURE_RECTANGLE, 0)
-
 
   def assign(self, array):
     gl.glBindTexture(gl.GL_TEXTURE_RECTANGLE, self.id_)
@@ -146,10 +139,7 @@ class GlTextureRectangle:
     return self.id_
 
 
-
-
 class GlShader:
-
   def __init__(self, shader_type, source):
     self.code_ = source
     self.shader_type_ = shader_type
@@ -157,8 +147,15 @@ class GlShader:
     self.id_ = gl.glCreateShader(self.shader_type_)
     gl.glShaderSource(self.id_, source)
 
-  # def __del__(self):
-  #   gl.glDeleteShader(self.id_)
+    gl.glCompileShader(self.id_)
+
+    success = gl.glGetShaderiv(self.id_, gl.GL_COMPILE_STATUS)
+    if success == gl.GL_FALSE:
+      error_string = gl.glGetShaderInfoLog(self.id_).decode("utf-8")
+      raise RuntimeError(error_string)
+
+  def __del__(self):
+    gl.glDeleteShader(self.id_)
 
   @property
   def type(self):
@@ -191,9 +188,8 @@ class GlProgram:
     self.uniform_types_ = {}
     self.is_linked = False
 
-  # todo: figure this out.
-  # def __del__(self):
-  #   gl.glDeleteProgram(self.id_)
+  def __del__(self):
+    gl.glDeleteProgram(self.id_)
 
   def bind(self):
     if not self.is_linked:
