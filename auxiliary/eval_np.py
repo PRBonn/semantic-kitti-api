@@ -13,7 +13,7 @@ class PanopticEval:
 
   """
 
-  def __init__(self, n_classes, device=None, ignore=None, offset=100000, min_points=30):
+  def __init__(self, n_classes, device=None, ignore=None, offset=2**32, min_points=30):
     self.n_classes = n_classes
     assert (device == None)
     self.ignore = np.array(ignore, dtype=np.int64)

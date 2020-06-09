@@ -166,7 +166,7 @@ if __name__ == '__main__':
     label = np.fromfile(label_file, dtype=np.uint32)
 
     u_label_sem_class = class_lut[label & 0xFFFF]  # remap to xentropy format
-    u_label_inst = label >> 16
+    u_label_inst = label # unique instance ids.
     if FLAGS.limit is not None:
       u_label_sem_class = u_label_sem_class[:FLAGS.limit]
       u_label_sem_cat = u_label_sem_cat[:FLAGS.limit]
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     label = np.fromfile(pred_file, dtype=np.uint32)
 
     u_pred_sem_class = class_lut[label & 0xFFFF]  # remap to xentropy format
-    u_pred_inst = label >> 16
+    u_pred_inst = label # unique instance ids.
     if FLAGS.limit is not None:
       u_pred_sem_class = u_pred_sem_class[:FLAGS.limit]
       u_pred_sem_cat = u_pred_sem_cat[:FLAGS.limit]
