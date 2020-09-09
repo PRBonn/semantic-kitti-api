@@ -40,7 +40,7 @@ def unpack(compressed):
 
 
 def load_gt_volume(filename):
-  basename = os.path.os.path.splitext(filename)[0]
+  basename = os.path.splitext(filename)[0]
 
   labels = np.fromfile(filename, dtype=np.uint16)
   invalid_voxels = unpack(np.fromfile(basename + ".invalid", dtype=np.uint8))
