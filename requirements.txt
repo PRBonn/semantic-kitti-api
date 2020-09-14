@@ -6,3 +6,4 @@ PyYAML>=5.1.1
 imgui[glfw]>=1.0.0 
 glfw>=1.8.3
 PyOpenGL>=3.1.0
+pyqt5>=5.8.1.1
