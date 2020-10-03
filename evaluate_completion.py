@@ -40,7 +40,7 @@ def unpack(compressed):
 
 
 def load_gt_volume(filename):
-  basename = os.path.os.path.splitext(filename)[0]
+  basename = os.path.splitext(filename)[0]
 
   labels = np.fromfile(filename, dtype=np.uint16)
   invalid_voxels = unpack(np.fromfile(basename + ".invalid", dtype=np.uint8))
@@ -67,7 +67,7 @@ if __name__ == "__main__":
   parser.add_argument(
       '--predictions', '-p',
       type=str,
-      required=None,
+      required=False,
       help='Prediction dir. Same organization as dataset, but predictions in'
       'each sequences "prediction" directory.'
   )
@@ -141,9 +141,15 @@ if __name__ == "__main__":
     filenames_pred.extend([os.path.join(seq_dir_pred, f) for f in gt_file_list])
 
   missing_pred_files = False
+
+  if args.predictions is None:
+    prediction_dir = args.dataset
+  else:
+    prediction_dir = args.predictions
+
   # check that all prediction files exist
   for pred_file in filenames_pred:
-    if not os.path.exists(os.path.join(args.predictions, pred_file)):
+    if not os.path.exists(os.path.join(prediction_dir, pred_file)):
       print("Expected to have {}, but file does not exist!".format(pred_file))
       missing_pred_files = True
 
@@ -160,7 +166,7 @@ if __name__ == "__main__":
       progress = progress + 10
 
     filename_gt = os.path.join(args.dataset, f[0])
-    filename_pred = os.path.join(args.predictions, f[1])
+    filename_pred = os.path.join(prediction_dir, f[1])
 
     pred = load_pred_volume(filename_pred)
     target, invalid_voxels = load_gt_volume(filename_gt)
