@@ -198,7 +198,7 @@ if __name__ == '__main__':
     scan = scan.reshape((-1, 4))  # reshape to matrix
     if FLAGS.limit is not None:
       scan = scan[:FLAGS.limit]  # limit to desired length
-    depth = np.linalg.norm(scan, 2, axis=1)  # get depth to filter by distance
+    depth = np.linalg.norm(scan[:, :3], 2, axis=1)  # get depth to filter by distance
 
     # open label
     label = np.fromfile(label_file, dtype=np.int32)
