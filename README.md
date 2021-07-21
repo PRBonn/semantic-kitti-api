@@ -6,6 +6,7 @@ evaluate results for point clouds and labels from the SemanticKITTI dataset.
 - Link to original [KITTI Odometry Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) Dataset
 - Link to [SemanticKITTI dataset](http://semantic-kitti.org/).
 - Link to SemanticKITTI benchmark [competition](http://semantic-kitti.org/tasks.html).
+- Link to SemanticKITTI MOS benchmark [competition](http://bit.ly/mos-benchmark) (may be deleted after adding MOS to SemanticKITTI website).
 
 ---
 ##### Example of 3D pointcloud from sequence 13:
@@ -171,6 +172,29 @@ Navigation:
 
 Note: Holding the forward/backward buttons triggers the playback mode.
 
+
+#### LiDAR-based Moving Object Segmentation ([LiDAR-MOS](https://github.com/PRBonn/LiDAR-MOS))
+
+To visualize the data, use the `visualize_mos.py` script. It will open an interactive
+opengl visualization of the voxel grids and options to visualize the provided voxelizations 
+of the LiDAR data.
+
+```sh
+$ ./visualize_mos.py --sequence 00 --dataset /path/to/kitti/dataset/
+```
+
+where:
+- `sequence` is the sequence to be accessed.
+- `dataset` is the path to the kitti dataset where the `sequences` directory is.
+
+Navigation:
+- `n` is next scan,
+- `b` is previous scan,
+- `esc` or `q` exits.
+
+Note: Holding the forward/backward buttons triggers the playback mode.
+
+
 #### Evaluation
 
 To evaluate the predictions of a method, use the [evaluate_semantics.py](./evaluate_semantics.py) to evaluate 
@@ -220,6 +244,13 @@ The data needs to be either:
     ```sh
   $ ./evaluate_panoptic.py --dataset /path/to/kitti/dataset/ --predictions /path/to/method_predictions --split train/valid/test # depending of desired split to evaluate
   ```
+
+  or for moving object segmentation
+
+    ```sh
+  $ ./evaluate_mos.py --dataset /path/to/kitti/dataset/ --predictions /path/to/method_predictions --split train/valid/test # depending of desired split to evaluate
+  ```  
+
 - In the same directory as the dataset
 
   ```
