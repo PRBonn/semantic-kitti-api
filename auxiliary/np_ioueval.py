@@ -34,7 +34,7 @@ class iouEval:
     y_row = y.reshape(-1)  # de-batchify
 
     # check
-    assert(x_row.shape == x_row.shape)
+    assert(x_row.shape == y_row.shape)
 
     # create indexes
     idxs = tuple(np.stack((x_row, y_row), axis=0))
