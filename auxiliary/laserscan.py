@@ -124,7 +124,7 @@ class LaserScan:
 
     # get angles of all points
     yaw = -np.arctan2(scan_y, scan_x)
-    pitch = np.arcsin(scan_z / depth)
+    pitch = np.arcsin(scan_z / (depth + 1e-8))
 
     # get projections in image coords
     proj_x = 0.5 * (yaw / np.pi + 1.0)          # in [0.0, 1.0]
