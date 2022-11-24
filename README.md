@@ -6,7 +6,6 @@ evaluate results for point clouds and labels from the SemanticKITTI dataset.
 - Link to original [KITTI Odometry Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) Dataset
 - Link to [SemanticKITTI dataset](http://semantic-kitti.org/).
 - Link to SemanticKITTI benchmark [competition](http://semantic-kitti.org/tasks.html).
-- Link to SemanticKITTI MOS benchmark [competition](http://bit.ly/mos-benchmark) (may be deleted after adding MOS to SemanticKITTI website).
 
 ---
 ##### Example of 3D pointcloud from sequence 13:
@@ -94,11 +93,11 @@ Examples:
     252: 1    # "moving-car" to "car" -> gets merged with static car class
   ```
 - `learning_map_inv`: dictionary with inverse of the previous mapping, allows to
-map back the classes only to the interest ones (for saving pointclouds predictions
+map back the classes only to the interest ones (for saving point cloud predictions
 in original label format). We also provide [./remap_semantic_labels.py](./remap_semantic_labels.py),
 a script that uses this dictionary to put the label files in the original format,
 when instantiated with the `--inverse` flag.
-- `learning_ignore`: dictionary that cointains for each cross entropy class if it
+- `learning_ignore`: dictionary that contains for each cross entropy class if it
 will be ignored during training and evaluation or not. For example, class `unlabeled` gets
 ignored in both training and evaluation.
 - `split`: contains 3 lists, with the sequence numbers for training, validation, and evaluation.
@@ -314,16 +313,7 @@ The submission folder expects to get an zip file containing the following folder
     └── 21
   ```
 
-In summary, you only have to provide the label files containing your predictions for every point of the scan and this is also checked by our validation script. If you want to have more information on our maintained leaderboard (coming soon!), you (currently) have to provide an additional `description.txt` file containing information, which we currently cannot access via the API.
-
-```
-method name: 
-method description: 
-project url: 
-publication url: 
-bibtex: 
-organization or affiliation: 
-```
+In summary, you only have to provide the label files containing your predictions for every point of the scan and this is also checked by our validation script.
 
 Run:
   ```sh
@@ -332,6 +322,20 @@ Run:
 to check your `submission.zip`.
 
 ***Note:*** We don't check if the labels are valid, since invalid labels are simply ignored by the evaluation script.
+
+#### (New!) Adding Approach Information
+
+If you want to have more information on the leaderboard in the new updated competitions, you have to provide an additional `description.txt` file containing information:
+
+```
+name: 
+pdf url: 
+code url:
+```
+
+where `name` corresponds to the name of the method, `pdf url` is a link to the paper pdf url, and `code url` is a url that directs to the code. If the information is not available, we will use `Anonymous` for the name, and `n/a` for the urls.
+
+
 
 #### Statistics
 
