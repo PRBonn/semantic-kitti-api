@@ -293,9 +293,8 @@ To ensure that your zip file is valid, we provide a small validation script [val
 The submission folder expects to get an zip file containing the following folder structure (as the separate case above)
 
   ```
-  
+  ├ description.txt (optional)
   sequences
-    ├── description.txt (optional)
     ├── 11
     │   └── predictions
     │         ├ 000000.label
@@ -325,15 +324,15 @@ to check your `submission.zip`.
 
 #### (New!) Adding Approach Information
 
-If you want to have more information on the leaderboard in the new updated competitions, you have to provide an additional `description.txt` file containing information:
+If you want to have more information on the leaderboard in the new updated Codalab competitions under the "Detailed Results", you have to provide an additional `description.txt` file to the submission archive containing information (here just an example):
 
 ```
-name: 
-pdf url: 
-code url:
+name: Auto-MOS
+pdf url: https://arxiv.org/pdf/2201.04501.pdf
+code url: https://github.com/PRBonn/auto-mos
 ```
 
-where `name` corresponds to the name of the method, `pdf url` is a link to the paper pdf url, and `code url` is a url that directs to the code. If the information is not available, we will use `Anonymous` for the name, and `n/a` for the urls.
+where `name` corresponds to the name of the method, `pdf url` is a link to the paper pdf url (or empty), and `code url` is a url that directs to the code (or empty). If the information is not available, we will use `Anonymous` for the name, and `n/a` for the urls.
 
 
 
