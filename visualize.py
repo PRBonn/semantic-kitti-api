@@ -51,8 +51,25 @@ if __name__ == '__main__':
       '--do_instances', '-di',
       dest='do_instances',
       default=False,
+      required=False,
       action='store_true',
       help='Visualize instances too. Defaults to %(default)s',
+  )
+  parser.add_argument(
+      '--ignore_images', '-r',
+      dest='ignore_images',
+      default=False,
+      required=False,
+      action='store_true',
+      help='Visualize range image projections too. Defaults to %(default)s',
+  )
+  parser.add_argument(
+      '--link', '-l',
+      dest='link',
+      default=False,
+      required=False,
+      action='store_true',
+      help='Link viewpoint changes across windows. Defaults to %(default)s',
   )
   parser.add_argument(
       '--offset',
@@ -65,6 +82,7 @@ if __name__ == '__main__':
       '--ignore_safety',
       dest='ignore_safety',
       default=False,
+      required=False,
       action='store_true',
       help='Normally you want the number of labels and ptcls to be the same,'
       ', but if you are not done inferring this is not the case, so this disables'
@@ -82,6 +100,8 @@ if __name__ == '__main__':
   print("Predictions", FLAGS.predictions)
   print("ignore_semantics", FLAGS.ignore_semantics)
   print("do_instances", FLAGS.do_instances)
+  print("ignore_images", FLAGS.ignore_images)
+  print("link", FLAGS.link)
   print("ignore_safety", FLAGS.ignore_safety)
   print("offset", FLAGS.offset)
   print("*" * 80)
@@ -145,13 +165,14 @@ if __name__ == '__main__':
   # create a visualizer
   semantics = not FLAGS.ignore_semantics
   instances = FLAGS.do_instances
+  images = not FLAGS.ignore_images
   if not semantics:
     label_names = None
   vis = LaserScanVis(scan=scan,
                      scan_names=scan_names,
                      label_names=label_names,
                      offset=FLAGS.offset,
-                     semantics=semantics, instances=instances and semantics)
+                     semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link)
 
   # print instructions
   print("To navigate:")
