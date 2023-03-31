@@ -123,9 +123,6 @@ if __name__ == '__main__':
   label_a_paths = os.path.join(FLAGS.dataset_a, "sequences", FLAGS.sequence, "labels")
   label_b_paths = os.path.join(FLAGS.dataset_b, "sequences", FLAGS.sequence, "labels")
 
-  assert(len(scan_a_names) == len(scan_b_names))
-  assert(len(label_a_paths) == len(label_b_paths))
-
   if os.path.isdir(label_a_paths):
     print("Labels folder a exists! Using labels from %s" % label_a_paths)
   else:
@@ -146,8 +143,9 @@ if __name__ == '__main__':
 
   # check that there are same amount of labels and scans
   if not FLAGS.ignore_safety:
-    assert(len(label_a_names) == len(scan_a_names))
-    assert(len(label_b_names) == len(scan_b_names))
+    assert len(label_a_names) == len(scan_a_names)
+    assert len(label_b_names) == len(scan_b_names)
+    assert len(scan_a_names) == len(scan_b_names)
 
   # create scans
   color_dict = CFG["color_map"]
