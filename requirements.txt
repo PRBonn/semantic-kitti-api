@@ -1,7 +1,7 @@
 matplotlib>=2.2.3
 vispy>=0.5.3
 torch>=1.1.0
-numpy>=1.14.0
+numpy>=1.24.0
 PyYAML>=5.1.1
 imgui[glfw]>=1.0.0 
 glfw>=1.8.3
