@@ -3,27 +3,50 @@
 
 import vispy
 from vispy.scene import visuals, SceneCanvas
+from abc import ABC, abstractmethod
+import numpy as np
 
+class VispyManager(ABC):
+  def __init__(self, offset, total, images):
+    self.canvas, self.grid = self.add_canvas('interactive', 'scan')
+    self.offset = offset
+    self.images = images
+    self.n_images = 2
+    self.img_canvas_W = 1024
+    self.img_canvas_H = 64 * self.n_images
+    self.img_canvas = None
+    if self.images:
+      self.img_canvas, self.img_grid = self.add_canvas('interactive', 'img', size=(self.img_canvas_W, self.img_canvas_H))
 
-class VispyManager(object):
-  def __init__(self, key_press, draw):
-    self.canvas = SceneCanvas(keys='interactive', show=True)
-    self.canvas.events.key_press.connect(key_press)
-    self.canvas.events.draw.connect(draw)
-    self.grid = self.canvas.central_widget.add_grid()
-    self.destroyed = False
+    self.total = total
 
-  def block_key_press(self):
-    self.canvas.events.key_press.block()
+  def add_canvas(self, keys, title, size=None):
+    canvas = None
+    if size:
+      canvas = SceneCanvas(keys=keys, show=True, size=size, title=title)
+    else:
+      canvas = SceneCanvas(keys=keys, show=True, title=title)
 
-  def key_press_blocked(self):
-    return self.canvas.events.key_press.blocked()
+    canvas.events.key_press.connect(self.key_press)
+    canvas.events.draw.connect(self.draw)
+    grid = canvas.central_widget.add_grid()
+    return canvas, grid
 
-  def key_press_unblocked(self):
-    return not self.canvas.events.key_press.blocked()
+  @staticmethod
+  def block_key_press(canvas):
+    canvas.events.key_press.block()
 
-  def unblock_key_press(self):
-    self.canvas.events.key_press.unblock()
+  @staticmethod
+  def key_press_blocked(canvas):
+    return canvas.events.key_press.blocked()
+
+  @staticmethod
+  def key_press_unblocked(canvas):
+    return not canvas.events.key_press.blocked()
+
+  @staticmethod
+  def unblock_key_press(canvas):
+    canvas.events.key_press.unblock()
 
   def add_viewbox(self, row, col, border_color='white'):
     view = vispy.scene.widgets.ViewBox(border_color=border_color, parent=self.canvas.scene)
@@ -34,14 +57,49 @@ class VispyManager(object):
     visuals.XYZAxis(parent=view.scene)
     return view, vis
 
-  def destroy(self):
-    self.canvas.close()
-    vispy.app.quit()
-    self.destroyed = True
+  def add_image_viewbox(self, row, col, border_color='white'):
+    img_view = vispy.scene.widgets.ViewBox(
+      border_color=border_color, parent=self.img_canvas.scene)
+    self.img_grid.add_widget(img_view, row, col)
+    img_vis = visuals.Image(cmap='viridis')
+    img_view.add(img_vis)
+    return img_view, img_vis
 
-  def __del__(self):
-    if not self.destroyed:
+  def key_press(self, event):
+    VispyManager.block_key_press(self.canvas)
+    if self.img_canvas:
+      VispyManager.block_key_press(self.img_canvas)
+    if event.key == 'N':
+      self.offset += 1
+      self.offset %= self.total
+      self.update_scan()
+    elif event.key == 'B':
+      self.offset -= 1
+      self.offset %= self.total
+      self.update_scan()
+    elif event.key == 'Q' or event.key == 'Escape':
       self.destroy()
+
+  def destroy(self):
+    if self.canvas:
+      self.canvas.close()
+    if self.img_canvas:
+      self.img_canvas.close()
+    vispy.app.quit()
+
+  def draw(self, event):
+    if VispyManager.key_press_blocked(self.canvas):
+      VispyManager.unblock_key_press(self.canvas)
+    if self.img_canvas and VispyManager.key_press_blocked(self.img_canvas):
+      VispyManager.unblock_key_press(self.img_canvas)
 
   def run(self):
     vispy.app.run()
+
+  @abstractmethod
+  def update_scan(self):
+    raise NotImplementedError
+
+  @abstractmethod
+  def reset(self):
+    raise NotImplementedError
