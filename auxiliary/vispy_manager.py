@@ -7,10 +7,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 class VispyManager(ABC):
-  def __init__(self, offset, total, images):
+  def __init__(self, offset, total, images, instances):
     self.canvas, self.grid = self.add_canvas('interactive', 'scan')
     self.offset = offset
     self.images = images
+    self.instances = instances
     self.n_images = 2
     self.img_canvas_W = 1024
     self.img_canvas_H = 64 * self.n_images

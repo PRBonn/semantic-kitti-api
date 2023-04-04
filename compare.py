@@ -44,6 +44,14 @@ if __name__ == '__main__':
       help='Visualize range image projections too. Defaults to %(default)s',
   )
   parser.add_argument(
+      '--do_instances', '-d',
+      dest='do_instances',
+      default=False,
+      required=False,
+      action='store_true',
+      help='Visualize instances too. Defaults to %(default)s',
+  )
+  parser.add_argument(
       '--link', '-l',
       dest='link',
       default=False,
@@ -79,6 +87,7 @@ if __name__ == '__main__':
   print("Config", FLAGS.config)
   print("Sequence", FLAGS.sequence)
   print("ignore_images", FLAGS.ignore_images)
+  print("do_instances", FLAGS.do_instances)
   print("link", FLAGS.link)
   print("ignore_safety", FLAGS.ignore_safety)
   print("offset", FLAGS.offset)
@@ -158,7 +167,7 @@ if __name__ == '__main__':
   vis = LaserScanComp(scans=(scan_a, scan_b),
                      scan_names=(scan_a_names, scan_b_names),
                      label_names=(label_a_names, label_b_names),
-                     offset=FLAGS.offset, images=images, link=FLAGS.link)
+                     offset=FLAGS.offset, images=images, instances=FLAGS.do_instances, link=FLAGS.link)
 
   # print instructions
   print("To navigate:")

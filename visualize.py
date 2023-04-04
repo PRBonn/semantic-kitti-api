@@ -48,7 +48,7 @@ if __name__ == '__main__':
       'Defaults to %(default)s',
   )
   parser.add_argument(
-      '--do_instances', '-di',
+      '--do_instances', '-d',
       dest='do_instances',
       default=False,
       required=False,
