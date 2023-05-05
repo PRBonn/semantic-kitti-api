@@ -130,7 +130,6 @@ class LaserScanVis:
     color_range = sm.to_rgba(np.linspace(0, 1, 256), bytes=True)[:, 2::-1]
 
     return color_range.reshape(256, 3).astype(np.float32) / 255.0
-
   def update_scan(self):
     # first open data
     self.scan.open_scan(self.scan_names[self.offset])

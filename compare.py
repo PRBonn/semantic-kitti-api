@@ -10,16 +10,16 @@ from auxiliary.laserscancomp import LaserScanComp
 if __name__ == '__main__':
   parser = argparse.ArgumentParser("./compare.py")
   parser.add_argument(
-      '--dataset_a',
+      '--dataset', '-d',
       type=str,
       required=True,
-      help='Dataset A to visualize. No Default',
+      help='Dataset to visualize. No Default',
   )
   parser.add_argument(
-      '--dataset_b',
-      type=str,
+      '--labels',
       required=True,
-      help='Dataset B to visualize. No Default',
+      nargs='+',
+      help='Labels A to visualize. No Default',
   )
   parser.add_argument(
       '--config', '-c',
@@ -44,7 +44,7 @@ if __name__ == '__main__':
       help='Visualize range image projections too. Defaults to %(default)s',
   )
   parser.add_argument(
-      '--do_instances', '-d',
+      '--do_instances', '-i',
       dest='do_instances',
       default=False,
       required=False,
@@ -82,8 +82,7 @@ if __name__ == '__main__':
   # print summary of what we will do
   print("*" * 80)
   print("INTERFACE:")
-  print("Dataset A", FLAGS.dataset_a)
-  print("Dataset B", FLAGS.dataset_b)
+  print("Labels: ", FLAGS.labels)
   print("Config", FLAGS.config)
   print("Sequence", FLAGS.sequence)
   print("ignore_images", FLAGS.ignore_images)
@@ -106,31 +105,25 @@ if __name__ == '__main__':
   FLAGS.sequence = '{0:02d}'.format(int(FLAGS.sequence))
 
   # does sequence folder exist?
-  scan_a_paths = os.path.join(FLAGS.dataset_a, "sequences", FLAGS.sequence, "velodyne")
-  scan_b_paths = os.path.join(FLAGS.dataset_b, "sequences", FLAGS.sequence, "velodyne")
+  scan_paths = os.path.join(FLAGS.dataset, "sequences", FLAGS.sequence, "velodyne")
 
-  if os.path.isdir(scan_a_paths):
-    print("Sequence folder a exists! Using sequence from %s" % scan_a_paths)
+  if os.path.isdir(scan_paths):
+    print("Sequence folder a exists! Using sequence from %s" % scan_paths)
   else:
-    print("Sequence folder a doesn't exist! Exiting...")
-    quit()
-
-  if os.path.isdir(scan_b_paths):
-    print("Sequence folder b exists! Using sequence from %s" % scan_b_paths)
-  else:
-    print("Sequence folder b doesn't exist! Exiting...")
+    print(f"Sequence folder {scan_paths} doesn't exist! Exiting...")
     quit()
 
   # populate the pointclouds
-  scan_a_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(scan_a_paths)) for f in fn]
-  scan_a_names.sort()
+  scan_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(scan_paths)) for f in fn]
+  scan_names.sort()
 
-  scan_b_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(scan_b_paths)) for f in fn]
-  scan_b_names.sort()
+  print(len(scan_names))
 
   # does sequence folder exist?
-  label_a_paths = os.path.join(FLAGS.dataset_a, "sequences", FLAGS.sequence, "labels")
-  label_b_paths = os.path.join(FLAGS.dataset_b, "sequences", FLAGS.sequence, "labels")
+  assert len(FLAGS.labels) == 2
+  labels_a, labels_b = FLAGS.labels[0], FLAGS.labels[1]
+  label_a_paths = os.path.join(FLAGS.dataset, "sequences", FLAGS.sequence, labels_a)
+  label_b_paths = os.path.join(FLAGS.dataset, "sequences", FLAGS.sequence, labels_b)
 
   if os.path.isdir(label_a_paths):
     print("Labels folder a exists! Using labels from %s" % label_a_paths)
@@ -152,9 +145,8 @@ if __name__ == '__main__':
 
   # check that there are same amount of labels and scans
   if not FLAGS.ignore_safety:
-    assert len(label_a_names) == len(scan_a_names)
-    assert len(label_b_names) == len(scan_b_names)
-    assert len(scan_a_names) == len(scan_b_names)
+    assert len(label_a_names) == len(scan_names)
+    assert len(label_b_names) == len(scan_names)
 
   # create scans
   color_dict = CFG["color_map"]
@@ -165,7 +157,7 @@ if __name__ == '__main__':
   # create a visualizer
   images = not FLAGS.ignore_images
   vis = LaserScanComp(scans=(scan_a, scan_b),
-                     scan_names=(scan_a_names, scan_b_names),
+                     scan_names=scan_names,
                      label_names=(label_a_names, label_b_names),
                      offset=FLAGS.offset, images=images, instances=FLAGS.do_instances, link=FLAGS.link)
 
