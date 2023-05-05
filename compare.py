@@ -77,6 +77,14 @@ if __name__ == '__main__':
       ' that safety.'
       'Defaults to %(default)s',
   )
+  parser.add_argument(
+    '--color_learning_map',
+    dest='color_learning_map',
+    default=False,
+    required=False,
+    action='store_true',
+    help='Apply learning map to color map: visualize only classes that were trained on',
+  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -89,6 +97,7 @@ if __name__ == '__main__':
   print("do_instances", FLAGS.do_instances)
   print("link", FLAGS.link)
   print("ignore_safety", FLAGS.ignore_safety)
+  print("color_learning_map", FLAGS.color_learning_map)
   print("offset", FLAGS.offset)
   print("*" * 80)
 
@@ -150,9 +159,13 @@ if __name__ == '__main__':
 
   # create scans
   color_dict = CFG["color_map"]
-  nclasses = len(color_dict)
-  scan_a = SemLaserScan(nclasses, color_dict, project=True)
-  scan_b = SemLaserScan(nclasses, color_dict, project=True)
+  if FLAGS.color_learning_map:
+    learning_map_inv = CFG["learning_map_inv"]
+    learning_map = CFG["learning_map"]
+    color_dict = {key: color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
+
+  scan_b = SemLaserScan(color_dict, project=True)
+  scan_a = SemLaserScan(color_dict, project=True)
 
   # create a visualizer
   images = not FLAGS.ignore_images

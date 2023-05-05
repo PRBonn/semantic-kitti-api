@@ -72,6 +72,14 @@ if __name__ == '__main__':
       ' that safety.'
       'Defaults to %(default)s',
   )
+  parser.add_argument(
+    '--color_learning_map',
+    dest='color_learning_map',
+    default=False,
+    required=False,
+    action='store_true',
+    help='Apply learning map to color map: visualize only classes that were trained on',
+  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -84,6 +92,7 @@ if __name__ == '__main__':
   print("ignore_semantics", FLAGS.ignore_semantics)
   print("do_instances", FLAGS.do_instances)
   print("ignore_safety", FLAGS.ignore_safety)
+  print("color_learning_map", FLAGS.color_learning_map)
   print("offset", FLAGS.offset)
   print("*" * 80)
 
@@ -141,8 +150,12 @@ if __name__ == '__main__':
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
     color_dict = CFG["color_map"]
-    nclasses = len(color_dict)
-    scan = SemLaserScan(nclasses, color_dict, project=True)
+    if FLAGS.color_learning_map:
+      learning_map_inv = CFG["learning_map_inv"]
+      learning_map = CFG["learning_map"]
+      color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
+
+    scan = SemLaserScan(color_dict, project=True)
 
   # create a visualizer
   semantics = not FLAGS.ignore_semantics

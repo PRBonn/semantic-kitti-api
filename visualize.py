@@ -48,7 +48,7 @@ if __name__ == '__main__':
       'Defaults to %(default)s',
   )
   parser.add_argument(
-      '--do_instances', '-d',
+      '--do_instances', '-o',
       dest='do_instances',
       default=False,
       required=False,
@@ -89,6 +89,14 @@ if __name__ == '__main__':
       ' that safety.'
       'Defaults to %(default)s',
   )
+  parser.add_argument(
+    '--color_learning_map',
+    dest='color_learning_map',
+    default=False,
+    required=False,
+    action='store_true',
+    help='Apply learning map to color map: visualize only classes that were trained on',
+  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -103,6 +111,7 @@ if __name__ == '__main__':
   print("ignore_images", FLAGS.ignore_images)
   print("link", FLAGS.link)
   print("ignore_safety", FLAGS.ignore_safety)
+  print("color_learning_map", FLAGS.color_learning_map)
   print("offset", FLAGS.offset)
   print("*" * 80)
 
@@ -122,9 +131,9 @@ if __name__ == '__main__':
   scan_paths = os.path.join(FLAGS.dataset, "sequences",
                             FLAGS.sequence, "velodyne")
   if os.path.isdir(scan_paths):
-    print("Sequence folder exists! Using sequence from %s" % scan_paths)
+    print(f"Sequence folder {scan_paths} exists! Using sequence from {scan_paths}")
   else:
-    print("Sequence folder doesn't exist! Exiting...")
+    print(f"Sequence folder {scan_paths} doesn't exist! Exiting...")
     quit()
 
   # populate the pointclouds
@@ -141,10 +150,11 @@ if __name__ == '__main__':
       label_paths = os.path.join(FLAGS.dataset, "sequences",
                                  FLAGS.sequence, "labels")
     if os.path.isdir(label_paths):
-      print("Labels folder exists! Using labels from %s" % label_paths)
+      print(f"Labels folder {label_paths} exists! Using labels from {label_paths}")
     else:
-      print("Labels folder doesn't exist! Exiting...")
+      print(f"Labels folder {label_paths} doesn't exist! Exiting...")
       quit()
+
     # populate the pointclouds
     label_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(
         os.path.expanduser(label_paths)) for f in fn]
@@ -159,8 +169,12 @@ if __name__ == '__main__':
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
     color_dict = CFG["color_map"]
-    nclasses = len(color_dict)
-    scan = SemLaserScan(nclasses, color_dict, project=True)
+    if FLAGS.color_learning_map:
+      learning_map_inv = CFG["learning_map_inv"]
+      learning_map = CFG["learning_map"]
+      color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
+
+    scan = SemLaserScan(color_dict, project=True)
 
   # create a visualizer
   semantics = not FLAGS.ignore_semantics
