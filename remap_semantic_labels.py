@@ -99,12 +99,12 @@ if __name__ == '__main__':
   # print(remap_lut)
 
   # get wanted set
-  sequence = []
-  sequence.extend(DATA["split"][FLAGS.split])
+  sequences = []
+  sequences.extend(DATA["split"][FLAGS.split])
 
   # get label paths
   label_names = []
-  for sequence in sequence:
+  for sequence in sequences:
     sequence = '{0:02d}'.format(int(sequence))
     label_paths = os.path.join(root_directory, "sequences",
                                sequence, label_directory)
