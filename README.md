@@ -154,7 +154,7 @@ To directly compare two sets of data, use the `compare.py` script. It will open 
 opengl visualization of the pointcloud labels.
 
 ```sh
-$ ./compare.py --sequence 00 --dataset_a /path/to/dataset_a/ --dataset_a /path/to/kitti/dataset_b/
+$ ./compare.py --sequence 00 --dataset_a /path/to/dataset_a/ --dataset_b /path/to/kitti/dataset_b/
 ```
 
 where:
