@@ -150,6 +150,23 @@ visualization of the labels with the visualization of your predictions:
 $ ./visualize.py --sequence 00 --dataset /path/to/kitti/dataset/ --predictions /path/to/your/predictions
 ```
 
+To directly compare two sets of data, use the `compare.py` script. It will open an interactive
+opengl visualization of the pointcloud labels.
+
+```sh
+$ ./compare.py --sequence 00 --dataset_a /path/to/dataset_a/ --dataset_b /path/to/kitti/dataset_b/
+```
+
+where:
+- `sequence` is the sequence to be accessed.
+- `dataset_a` is the path to a dataset in KITTI format where the `sequences` directory is.
+- `dataset_b` is the path to another dataset in KITTI format where the `sequences` directory is.
+
+Navigation:
+- `n` is next scan,
+- `b` is previous scan,
+- `esc` or `q` exits.
+
 #### Voxel Grids for Semantic Scene Completion
 
 To visualize the data, use the `visualize_voxels.py` script. It will open an interactive

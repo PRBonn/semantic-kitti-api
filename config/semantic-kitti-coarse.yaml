@@ -1,0 +1,189 @@
+# This file is covered by the LICENSE file in the root of this project.
+labels: 
+  0 : "unlabeled"
+  1 : "outlier"
+  10: "car"
+  11: "bicycle"
+  13: "bus"
+  15: "motorcycle"
+  16: "on-rails"
+  18: "truck"
+  20: "other-vehicle"
+  30: "person"
+  31: "bicyclist"
+  32: "motorcyclist"
+  40: "road"
+  44: "parking"
+  48: "sidewalk"
+  49: "other-ground"
+  50: "building"
+  51: "fence"
+  52: "other-structure"
+  60: "lane-marking"
+  70: "vegetation"
+  71: "trunk"
+  72: "terrain"
+  80: "pole"
+  81: "traffic-sign"
+  99: "other-object"
+  252: "moving-car"
+  253: "moving-bicyclist"
+  254: "moving-person"
+  255: "moving-motorcyclist"
+  256: "moving-on-rails"
+  257: "moving-bus"
+  258: "moving-truck"
+  259: "moving-other-vehicle"
+color_map: # bgr
+  0 : [0, 0, 0]
+  1 : [0, 0, 255]
+  10: [245, 150, 100]
+  11: [245, 230, 100]
+  13: [250, 80, 100]
+  15: [150, 60, 30]
+  16: [255, 0, 0]
+  18: [180, 30, 80]
+  20: [255, 0, 0]
+  30: [30, 30, 255]
+  31: [200, 40, 255]
+  32: [90, 30, 150]
+  40: [255, 0, 255]
+  44: [255, 150, 255]
+  48: [75, 0, 75]
+  49: [75, 0, 175]
+  50: [0, 200, 255]
+  51: [50, 120, 255]
+  52: [0, 150, 255]
+  60: [170, 255, 150]
+  70: [0, 175, 0]
+  71: [0, 60, 135]
+  72: [80, 240, 150]
+  80: [150, 240, 255]
+  81: [0, 0, 255]
+  99: [255, 255, 50]
+  252: [245, 150, 100]
+  256: [255, 0, 0]
+  253: [200, 40, 255]
+  254: [30, 30, 255]
+  255: [90, 30, 150]
+  257: [250, 80, 100]
+  258: [180, 30, 80]
+  259: [255, 0, 0]
+content: # as a ratio with the total number of points
+  0: 0.018889854628292943
+  1: 0.0002937197336781505
+  10: 0.040818519255974316
+  11: 0.00016609538710764618
+  13: 2.7879693665067774e-05
+  15: 0.00039838616015114444
+  16: 0.0
+  18: 0.0020633612104619787
+  20: 0.0016218197275284021
+  30: 0.00017698551338515307
+  31: 1.1065903904919655e-08
+  32: 5.532951952459828e-09
+  40: 0.1987493871255525
+  44: 0.014717169549888214
+  48: 0.14392298360372
+  49: 0.0039048553037472045
+  50: 0.1326861944777486
+  51: 0.0723592229456223
+  52: 0.002395131480328884
+  60: 4.7084144280367186e-05
+  70: 0.26681502148037506
+  71: 0.006035012012626033
+  72: 0.07814222006271769
+  80: 0.002855498193863172
+  81: 0.0006155958086189918
+  99: 0.009923127583046915
+  252: 0.001789309418528068
+  253: 0.00012709999297008662
+  254: 0.00016059776092534436
+  255: 3.745553104802113e-05
+  256: 0.0
+  257: 0.00011351574470342043
+  258: 0.00010157861367183268
+  259: 4.3840131989471124e-05
+# classes that are indistinguishable from single scan or inconsistent in
+# ground truth are mapped to their closest equivalent
+learning_map: # according to COLA
+  0: 0
+  1: 0
+  10: 3
+  11: 3
+  13: 3
+  15: 3
+  16: 3
+  18: 3
+  20: 3
+  30: 5
+  31: 5
+  32: 5
+  40: 1
+  44: 1
+  48: 8
+  49: 8
+  50: 2
+  51: 2
+  52: 2
+  60: 1
+  70: 4
+  71: 4
+  72: 4
+  80: 7
+  81: 7
+  99: 0
+  252: 3
+  253: 3
+  254: 5
+  255: 5
+  256: 3
+  257: 5
+  258: 3
+  259: 3
+learning_map_inv: # inverse of previous map
+  0: 0      # "unlabeled", and others ignored
+  1: 40     # "drivable ground: parking, road (40)"
+  2: 50     # "structure: fence, building (50)"
+  3: 10     # "vehicle: motorcycle, car (10), bicycle, truck, other vehicles"
+  4: 70     # "nature: trunk, vegetation (70), terrain"
+  5: 30     # "living-being: person (30), bicyclist, motorcyclist"
+  6: 0      # "dynamic object"
+  7: 80     # "static-object: pole (80), sign"
+  8: 48     # other ground: sidewalk (48), other ground
+learning_ignore: # Ignore classes
+  0: True      # "unlabeled", and others ignored
+  1: False    # "drivable ground: parking, road (40)"
+  2: False     # "structure: fence, building (50)"
+  3: False     # "vehicle: motorcycle, car (10), bicycle, truck, other vehicles"
+  4: False     # "nature: trunk, vegetation (70), terrain"
+  5: False     # "living-being: person (30), bicyclist, motorcyclist"
+  6: True      # "dynamic object"
+  7: False     # "static-object: pole (80), sign"
+  8: False     # other ground: sidewalk (48), other ground
+split: # sequence numbers
+  train:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 9
+    - 10
+  valid:
+    - 8
+  test:
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    - 20
+    - 21

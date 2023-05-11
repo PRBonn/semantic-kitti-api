@@ -5,15 +5,21 @@ import argparse
 import os
 import yaml
 from auxiliary.laserscan import LaserScan, SemLaserScan
-from auxiliary.laserscanvis import LaserScanVis
+from auxiliary.laserscancomp import LaserScanComp
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser("./visualize.py")
+  parser = argparse.ArgumentParser("./compare.py")
   parser.add_argument(
       '--dataset', '-d',
       type=str,
       required=True,
       help='Dataset to visualize. No Default',
+  )
+  parser.add_argument(
+      '--labels',
+      required=True,
+      nargs='+',
+      help='Labels A to visualize. No Default',
   )
   parser.add_argument(
       '--config', '-c',
@@ -30,38 +36,20 @@ if __name__ == '__main__':
       help='Sequence to visualize. Defaults to %(default)s',
   )
   parser.add_argument(
-      '--predictions', '-p',
-      type=str,
-      default=None,
-      required=False,
-      help='Alternate location for labels, to use predictions folder. '
-      'Must point to directory containing the predictions in the proper format '
-      ' (see readme)'
-      'Defaults to %(default)s',
-  )
-  parser.add_argument(
-      '--ignore_semantics', '-i',
-      dest='ignore_semantics',
-      default=False,
-      action='store_true',
-      help='Ignore semantics. Visualizes uncolored pointclouds.'
-      'Defaults to %(default)s',
-  )
-  parser.add_argument(
-      '--do_instances', '-o',
-      dest='do_instances',
-      default=False,
-      required=False,
-      action='store_true',
-      help='Visualize instances too. Defaults to %(default)s',
-  )
-  parser.add_argument(
       '--ignore_images', '-r',
       dest='ignore_images',
       default=False,
       required=False,
       action='store_true',
       help='Visualize range image projections too. Defaults to %(default)s',
+  )
+  parser.add_argument(
+      '--do_instances', '-i',
+      dest='do_instances',
+      default=False,
+      required=False,
+      action='store_true',
+      help='Visualize instances too. Defaults to %(default)s',
   )
   parser.add_argument(
       '--link', '-l',
@@ -102,13 +90,11 @@ if __name__ == '__main__':
   # print summary of what we will do
   print("*" * 80)
   print("INTERFACE:")
-  print("Dataset", FLAGS.dataset)
+  print("Labels: ", FLAGS.labels)
   print("Config", FLAGS.config)
   print("Sequence", FLAGS.sequence)
-  print("Predictions", FLAGS.predictions)
-  print("ignore_semantics", FLAGS.ignore_semantics)
-  print("do_instances", FLAGS.do_instances)
   print("ignore_images", FLAGS.ignore_images)
+  print("do_instances", FLAGS.do_instances)
   print("link", FLAGS.link)
   print("ignore_safety", FLAGS.ignore_safety)
   print("color_learning_map", FLAGS.color_learning_map)
@@ -128,65 +114,65 @@ if __name__ == '__main__':
   FLAGS.sequence = '{0:02d}'.format(int(FLAGS.sequence))
 
   # does sequence folder exist?
-  scan_paths = os.path.join(FLAGS.dataset, "sequences",
-                            FLAGS.sequence, "velodyne")
+  scan_paths = os.path.join(FLAGS.dataset, "sequences", FLAGS.sequence, "velodyne")
+
   if os.path.isdir(scan_paths):
-    print(f"Sequence folder {scan_paths} exists! Using sequence from {scan_paths}")
+    print("Sequence folder a exists! Using sequence from %s" % scan_paths)
   else:
     print(f"Sequence folder {scan_paths} doesn't exist! Exiting...")
     quit()
 
   # populate the pointclouds
-  scan_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(
-      os.path.expanduser(scan_paths)) for f in fn]
+  scan_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(scan_paths)) for f in fn]
   scan_names.sort()
 
+  print(len(scan_names))
+
   # does sequence folder exist?
-  if not FLAGS.ignore_semantics:
-    if FLAGS.predictions is not None:
-      label_paths = os.path.join(FLAGS.predictions, "sequences",
-                                 FLAGS.sequence, "predictions")
-    else:
-      label_paths = os.path.join(FLAGS.dataset, "sequences",
-                                 FLAGS.sequence, "labels")
-    if os.path.isdir(label_paths):
-      print(f"Labels folder {label_paths} exists! Using labels from {label_paths}")
-    else:
-      print(f"Labels folder {label_paths} doesn't exist! Exiting...")
-      quit()
+  assert len(FLAGS.labels) == 2
+  labels_a, labels_b = FLAGS.labels[0], FLAGS.labels[1]
+  label_a_paths = os.path.join(FLAGS.dataset, "sequences", FLAGS.sequence, labels_a)
+  label_b_paths = os.path.join(FLAGS.dataset, "sequences", FLAGS.sequence, labels_b)
 
-    # populate the pointclouds
-    label_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(
-        os.path.expanduser(label_paths)) for f in fn]
-    label_names.sort()
-
-    # check that there are same amount of labels and scans
-    if not FLAGS.ignore_safety:
-      assert(len(label_names) == len(scan_names))
-
-  # create a scan
-  if FLAGS.ignore_semantics:
-    scan = LaserScan(project=True)  # project all opened scans to spheric proj
+  if os.path.isdir(label_a_paths):
+    print("Labels folder a exists! Using labels from %s" % label_a_paths)
   else:
-    color_dict = CFG["color_map"]
-    if FLAGS.color_learning_map:
-      learning_map_inv = CFG["learning_map_inv"]
-      learning_map = CFG["learning_map"]
-      color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
+    print("Labels folder a doesn't exist! Exiting...")
+    quit()
 
-    scan = SemLaserScan(color_dict, project=True)
+  if os.path.isdir(label_b_paths):
+    print("Labels folder b exists! Using labels from %s" % label_b_paths)
+  else:
+    print("Labels folder b doesn't exist! Exiting...")
+    quit()
+
+  # populate the pointclouds
+  label_a_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(label_a_paths)) for f in fn]
+  label_a_names.sort()
+  label_b_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(label_b_paths)) for f in fn]
+  label_b_names.sort()
+
+  # check that there are same amount of labels and scans
+  if not FLAGS.ignore_safety:
+    assert len(label_a_names) == len(scan_names)
+    assert len(label_b_names) == len(scan_names)
+
+  # create scans
+  color_dict = CFG["color_map"]
+  if FLAGS.color_learning_map:
+    learning_map_inv = CFG["learning_map_inv"]
+    learning_map = CFG["learning_map"]
+    color_dict = {key: color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
+
+  scan_b = SemLaserScan(color_dict, project=True)
+  scan_a = SemLaserScan(color_dict, project=True)
 
   # create a visualizer
-  semantics = not FLAGS.ignore_semantics
-  instances = FLAGS.do_instances
   images = not FLAGS.ignore_images
-  if not semantics:
-    label_names = None
-  vis = LaserScanVis(scan=scan,
+  vis = LaserScanComp(scans=(scan_a, scan_b),
                      scan_names=scan_names,
-                     label_names=label_names,
-                     offset=FLAGS.offset,
-                     semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link)
+                     label_names=(label_a_names, label_b_names),
+                     offset=FLAGS.offset, images=images, instances=FLAGS.do_instances, link=FLAGS.link)
 
   # print instructions
   print("To navigate:")

@@ -170,10 +170,9 @@ class SemLaserScan(LaserScan):
   """Class that contains LaserScan with x,y,z,r,sem_label,sem_color_label,inst_label,inst_color_label"""
   EXTENSIONS_LABEL = ['.label']
 
-  def __init__(self, nclasses, sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0):
+  def __init__(self, sem_color_dict=None, project=False, H=64, W=1024, fov_up=3.0, fov_down=-25.0):
     super(SemLaserScan, self).__init__(project, H, W, fov_up, fov_down)
     self.reset()
-    self.nclasses = nclasses         # number of classes
 
     # make semantic colors
     max_sem_key = 0
@@ -208,13 +207,13 @@ class SemLaserScan(LaserScan):
     self.proj_sem_label = np.zeros((self.proj_H, self.proj_W),
                                    dtype=np.int32)              # [H,W]  label
     self.proj_sem_color = np.zeros((self.proj_H, self.proj_W, 3),
-                                   dtype=np.float)              # [H,W,3] color
+                                   dtype=float)              # [H,W,3] color
 
     # projection color with instance labels
     self.proj_inst_label = np.zeros((self.proj_H, self.proj_W),
                                     dtype=np.int32)              # [H,W]  label
     self.proj_inst_color = np.zeros((self.proj_H, self.proj_W, 3),
-                                    dtype=np.float)              # [H,W,3] color
+                                    dtype=float)              # [H,W,3] color
 
   def open_label(self, filename):
     """ Open raw scan and fill in attributes
