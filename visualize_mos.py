@@ -166,7 +166,9 @@ if __name__ == '__main__':
                      scan_names=scan_names,
                      label_names=label_names,
                      offset=FLAGS.offset,
-                     semantics=semantics, instances=instances and semantics)
+                     semantics=semantics,
+                     semantics_only=False,
+                     instances=instances and semantics)
 
   # print instructions
   print("To navigate:")
