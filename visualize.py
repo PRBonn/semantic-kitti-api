@@ -48,6 +48,14 @@ if __name__ == '__main__':
       'Defaults to %(default)s',
   )
   parser.add_argument(
+      '--semantics_only',
+      dest='semantics_only',
+      default=False,
+      action='store_true',
+      help='Only visualize semantics.'
+      'Defaults to %(default)s',
+  )
+  parser.add_argument(
       '--do_instances', '-o',
       dest='do_instances',
       default=False,
@@ -89,14 +97,6 @@ if __name__ == '__main__':
       ' that safety.'
       'Defaults to %(default)s',
   )
-  parser.add_argument(
-    '--color_learning_map',
-    dest='color_learning_map',
-    default=False,
-    required=False,
-    action='store_true',
-    help='Apply learning map to color map: visualize only classes that were trained on',
-  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -107,11 +107,11 @@ if __name__ == '__main__':
   print("Sequence", FLAGS.sequence)
   print("Predictions", FLAGS.predictions)
   print("ignore_semantics", FLAGS.ignore_semantics)
+  print("semantics_only", FLAGS.semantics_only)
   print("do_instances", FLAGS.do_instances)
   print("ignore_images", FLAGS.ignore_images)
   print("link", FLAGS.link)
   print("ignore_safety", FLAGS.ignore_safety)
-  print("color_learning_map", FLAGS.color_learning_map)
   print("offset", FLAGS.offset)
   print("*" * 80)
 
@@ -123,6 +123,12 @@ if __name__ == '__main__':
     print(e)
     print("Error opening yaml file.")
     quit()
+
+  # if custom config is given as parameter, assume that coloring must be exactly according to learning map
+  color_learning_map = FLAGS.config is not None
+
+  assert not (FLAGS.ignore_semantics and FLAGS.semantics_only),\
+          "Can't ignore semantics and show semantics only at the same time!"
 
   # fix sequence name
   FLAGS.sequence = '{0:02d}'.format(int(FLAGS.sequence))
@@ -169,7 +175,7 @@ if __name__ == '__main__':
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
     color_dict = CFG["color_map"]
-    if FLAGS.color_learning_map:
+    if color_learning_map:
       learning_map_inv = CFG["learning_map_inv"]
       learning_map = CFG["learning_map"]
       color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
@@ -178,6 +184,7 @@ if __name__ == '__main__':
 
   # create a visualizer
   semantics = not FLAGS.ignore_semantics
+  semantics_only = FLAGS.semantics_only
   instances = FLAGS.do_instances
   images = not FLAGS.ignore_images
   if not semantics:
@@ -186,7 +193,9 @@ if __name__ == '__main__':
                      scan_names=scan_names,
                      label_names=label_names,
                      offset=FLAGS.offset,
-                     semantics=semantics, instances=instances and semantics, images=images, link=FLAGS.link)
+                     semantics=semantics,
+                     semantics_only=semantics_only,
+                     instances=instances and semantics, images=images, link=FLAGS.link)
 
   # print instructions
   print("To navigate:")
