@@ -7,6 +7,8 @@ import yaml
 from auxiliary.laserscan import LaserScan, SemLaserScan
 from auxiliary.laserscanvis import LaserScanVis
 
+DEFAULT_CONFIG="config/semantic-kitti.yaml"
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser("./visualize.py")
   parser.add_argument(
@@ -19,7 +21,7 @@ if __name__ == '__main__':
       '--config', '-c',
       type=str,
       required=False,
-      default="config/semantic-kitti.yaml",
+      default=DEFAULT_CONFIG,
       help='Dataset config file. Defaults to %(default)s',
   )
   parser.add_argument(
@@ -175,7 +177,7 @@ if __name__ == '__main__':
     scan = LaserScan(project=True)  # project all opened scans to spheric proj
   else:
     color_dict = CFG["color_map"]
-    if color_learning_map:
+    if FLAGS.config != DEFAULT_CONFIG:
       learning_map_inv = CFG["learning_map_inv"]
       learning_map = CFG["learning_map"]
       color_dict = {key:color_dict[learning_map_inv[learning_map[key]]] for key, value in color_dict.items()}
