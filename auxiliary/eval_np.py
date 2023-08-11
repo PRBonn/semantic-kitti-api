@@ -141,7 +141,7 @@ class PanopticEval:
       pred_areas = np.array([counts_pred[id2idx_pred[id]] for id in pred_labels])
       intersections = counts_combo
       unions = gt_areas + pred_areas - intersections
-      ious = intersections.astype(float / unions.astype(float))
+      ious = intersections.astype(float) / unions.astype(float)
 
 
       tp_indexes = ious > 0.5
