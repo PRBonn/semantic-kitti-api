@@ -36,11 +36,13 @@ RUN apt install apt-utils \
 RUN updatedb
 
 # # Install any python pre-reqs from requirements.txt
-RUN pip3 install -U pip
+RUN curl -fsSL https://bootstrap.pypa.io/pip/3.5/get-pip.py | python3.5
 RUN pip3 install  scipy==0.19.1 \
-                  numpy==1.14.0 \
-                  torch==0.4.1 \
-                  opencv_python==3.4.0.12 \
+                  numpy==1.14.0 
+                #   torch==0.4.1 \
+
+RUN pip3 install torch===0.4.1 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip3 install opencv_python==3.4.0.12 \
                   vispy==0.5.3 \
                   tensorflow==1.11.0 \
                   PyYAML==3.13  \
