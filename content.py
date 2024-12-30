@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
   # get training sequences to calculate statistics
   sequences = CFG["split"]["train"]
-  print("Analizing sequences", sequences)
+  print("Analyzing sequences", sequences)
 
   # create content accumulator
   accum = {}
@@ -52,7 +52,7 @@ if __name__ == '__main__':
   for key, _ in CFG["labels"].items():
     accum[key] = 0
 
-  # itearate over sequences
+  # iterate over sequences
   for seq in sequences:
     seq_accum = {}
     seq_total = 0.0
@@ -97,8 +97,7 @@ if __name__ == '__main__':
     assert(len(label_names) == len(scan_names))
 
     # create a scan
-    nclasses = len(CFG["labels"])
-    scan = SemLaserScan(nclasses, CFG["color_map"], project=False)
+    scan = SemLaserScan(CFG["color_map"], project=False)
 
     for idx in range(len(scan_names)):
       # open scan
