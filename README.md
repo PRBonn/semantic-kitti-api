@@ -154,13 +154,13 @@ To directly compare two sets of data, use the `compare.py` script. It will open 
 opengl visualization of the pointcloud labels.
 
 ```sh
-$ ./compare.py --sequence 00 --dataset_a /path/to/dataset_a/ --dataset_b /path/to/kitti/dataset_b/
+$ ./compare.py --sequence 00 --dataset /path/to/dataset/ --labels "labels" "predictions"
 ```
 
 where:
 - `sequence` is the sequence to be accessed.
-- `dataset_a` is the path to a dataset in KITTI format where the `sequences` directory is.
-- `dataset_b` is the path to another dataset in KITTI format where the `sequences` directory is.
+- `dataset` is the path to a dataset in KITTI format where the `sequences` directory is.
+- `labels` describes two folders with different sets of labels in the sequence folder. For example: ground truth ("labels") and predictions from e.g. RangeNet in folder "predictions"
 
 Navigation:
 - `n` is next scan,
