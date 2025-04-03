@@ -48,7 +48,7 @@ class LaserScanVis:
     self.scan_view = vispy.scene.widgets.ViewBox(
         border_color='white', parent=self.canvas.scene)
     self.grid.add_widget(self.scan_view, 0, 0)
-    self.scan_vis = visuals.Markers()
+    self.scan_vis = visuals.Markers(antialias=0)
     self.scan_view.camera = 'turntable'
     self.scan_view.add(self.scan_vis)
     visuals.XYZAxis(parent=self.scan_view.scene)
@@ -58,7 +58,7 @@ class LaserScanVis:
       self.sem_view = vispy.scene.widgets.ViewBox(
           border_color='white', parent=self.canvas.scene)
       self.grid.add_widget(self.sem_view, 0, 1)
-      self.sem_vis = visuals.Markers()
+      self.sem_vis = visuals.Markers(antialias=0)
       self.sem_view.camera = 'turntable'
       self.sem_view.add(self.sem_vis)
       visuals.XYZAxis(parent=self.sem_view.scene)
@@ -70,7 +70,7 @@ class LaserScanVis:
       self.inst_view = vispy.scene.widgets.ViewBox(
           border_color='white', parent=self.canvas.scene)
       self.grid.add_widget(self.inst_view, 0, 2)
-      self.inst_vis = visuals.Markers()
+      self.inst_vis = visuals.Markers(antialias=0)
       self.inst_view.camera = 'turntable'
       self.inst_view.add(self.inst_vis)
       visuals.XYZAxis(parent=self.inst_view.scene)
